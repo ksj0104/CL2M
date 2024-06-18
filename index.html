@@ -3,215 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MIDASIT</title>
+    <title>Excel Table and Image Upload</title>
     <style>
         body {
-            background-color: #222;
-            color: #fff;
-            font-family: Arial, sans-serif;
             display: flex;
-            justify-content: center;
-            align-items: center;
             height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
         }
-        .total-region{
-            display: flex;
-            width: 90%;
-            height: 90%;
-        }
-        .left-side{
+        .left {
             flex: 7;
+            padding: 20px;
+            background-color: #f4f4f4;
+            overflow-y: auto;
+        }
+        .right {
+            flex: 3;
+            padding: 20px;
+            background-color: #e8e8e8;
             display: flex;
             flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
-        .right-side{
-            flex: 3;
-            background-color: #444;
-            border-radius: 0 10px 10px 0;
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
-        .right-top{
-            background-color: #100;
-            height:50%;
+        th, td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: left;
         }
-        .right-bottom{
-            background-color: #300;
-            height:50%;
+        th {
+            background-color: #f2f2f2;
         }
-
-        .list_talbe {
-            display: flex;
-            width: 70%;
-            height: 70%;
-        }
-        ul {
-            list-style-type: none; /* 리스트 마커 제거 */
-            padding: 0; /* 내부 여백 제거 */
-            margin: 0; /* 외부 여백 제거 */
-        }
-
-        /* 리스트 아이템 스타일링 */
-        li {
-            padding: 8px 0; /* 위아래로 8px의 여백 설정 */
-            border-bottom: 1px solid #ccc; /* 아이템 간 구분선 설정 */
-            font-size: 14px; /* 폰트 크기 설정 */
+        .input-container {
+            margin: 10px 0;
         }
     </style>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" href="http://www.midasit.com/favicon.ico?v=2">
 </head>
 <body>
-    <div class ="total-region">
-        <div class="left-side">
-            <h1>Upload Image</h1>
-            <input type="file" id="imageInput" />
-            <button onclick="upload_image()">Upload</button>
-        </div>
-        <div class = "right-side">
-            <h1>Upload Image</h1>
-            <input type="file" id="imageInput" />
-            <button onclick="upload_image()">Upload</button>
-        </div>
+    <div class="left">
+        <h2>Excel Data Table</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Header 1</th>
+                    <th>Header 2</th>
+                    <th>Header 3</th>
+                    <!-- Add more headers as needed -->
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Data 1</td>
+                    <td>Data 2</td>
+                    <td>Data 3</td>
+                    <!-- Add more data rows as needed -->
+                </tr>
+                <tr>
+                    <td>Data 4</td>
+                    <td>Data 5</td>
+                    <td>Data 6</td>
+                    <!-- Add more data rows as needed -->
+                </tr>
+            </tbody>
+        </table>
     </div>
-    <script>
-        // WebSocket 연결
-        const ws = new WebSocket('ws://10.10.30.241:3030');
-        ws.onopen = function(event) {
-            console.log('Connected to WebSocket server');
-        };
-        let my_vote = "";
-        let uid = "test"
-        // 웹 소켓으로부터 메시지를 받았을 때
-        ws.onmessage = function(event) {
-            const message = JSON.parse(event.data);
-            console.log(message);
-        };
-
-        function upload_image() {
-            const userListElement = document.getElementById('liarList');
-            userListElement.innerHTML = '';
-            userList.forEach(user => {
-                const listItem = document.createElement('div');
-                listItem.textContent = user;
-                listItem.classList.add('item'); // item 클래스 추가
-                listItem.onclick = () => onItemClick(listItem); // 클릭 이벤트 핸들러 설정
-                userListElement.appendChild(listItem);
-            });
-        }
-
-        function onItemClick(item) {
-            my_vote = item.textContent;
-            const allItems = document.querySelectorAll('.item');
-            allItems.forEach(item => {
-                item.classList.remove('selected');
-            });
-
-            // 클릭한 아이템에 선택 클래스 추가
-            item.classList.add('selected');
-        }
-
-
-        // 채팅 메시지 출력 함수
-        function displayMessage(message) {
-            const chatMessagesElement = document.getElementById('chatMessages');
-            const messageElement = document.createElement('div');
-
-            const currentDate = new Date();
-            const hours = String(currentDate.getHours()).padStart(2, '0'); // 시간을 두 자리 숫자로 포맷팅
-            const minutes = String(currentDate.getMinutes()).padStart(2, '0'); // 분을 두 자리 숫자로 포맷팅
-            const formattedTime = `${hours}:${minutes}`;
-
-            let chat_uid = message.split(': ')[0]
-            let chat_msg = message.split(': ')[1]
-            messageElement.classList.add('message')
-            if(chat_uid == uid){
-                messageElement.classList.add('my-message')
-            }
-            else{
-                messageElement.classList.add('other-message')
-            }
-            const uidElement = document.createElement('div')
-            uidElement.classList.add("user-name")
-            uidElement.textContent = chat_uid
-
-            const timeElement = document.createElement('div')
-            timeElement.classList.add("timestamp")
-            timeElement.textContent = formattedTime
-
-            const msgContent = document.createElement('div')
-            msgContent.classList.add("message-content")
-            msgContent.textContent = chat_msg
-
-            messageElement.appendChild(uidElement);
-            messageElement.appendChild(timeElement);
-            messageElement.appendChild(msgContent);
-            chatMessagesElement.appendChild(messageElement);
-            chatMessagesElement.scrollTop = chatMessagesElement.scrollHeight;
-        }
-
-       document.getElementById('messageInput').addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                const messageInput = document.getElementById('messageInput');
-                const message = messageInput.value.trim();
-                if (message !== '') {
-                    let msg = "send_chatqmwnburqiowe" + uid + ": " + message;
-                    msg = msg.toString('utf-8')
-                    console.log(msg)
-                    ws.send(msg);
-                    messageInput.value = '';
-                }
-            }
-        });
-
-        function change_nickname(){
-            const userID = prompt('Enter your ID:');
-            if (userID) {
-                let msg = "change_idqmwnburqiowe"+ uid + ":" + userID;
-                ws.send(msg.trim());
-            }
-            else{
-                console.log("cancel");
-            }
-        }
-
-        function game_start(){
-            let msg = "liar_gameqmwnburqiowestart";
-            msg = msg.toString('utf-8')
-            console.log(msg)
-            ws.send(msg);
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            var sidebar = document.getElementById("sidebar");
-            var menuIcon = document.querySelector(".menu-icon");
-            var isSidebarOpen = false;
-
-            // 톱니바퀴 아이콘을 클릭했을 때, 사이드바가 열렸는지 확인하는 함수
-            function toggleSidebar() {
-                isSidebarOpen = !isSidebarOpen;
-            }
-
-            // 사이드바를 열고 닫는 함수
-            function toggleSidebarState() {
-                sidebar.classList.toggle('open-sidebar');
-                toggleSidebar();
-            }
-
-            // 톱니바퀴 아이콘 클릭 이벤트 리스너
-            menuIcon.addEventListener('click', toggleSidebarState);
-
-            // document 클릭 이벤트 리스너
-            document.addEventListener('click', function(event) {
-                // 클릭된 요소가 사이드바 또는 톱니바퀴 아이콘인지 확인
-                var isClickInsideSidebar = sidebar.contains(event.target);
-                var isClickOnMenuIcon = menuIcon.contains(event.target);
-
-                // 만약 사이드바가 열려 있고, 클릭된 요소가 사이드바 이외의 영역이면 사이드바를 닫음
-                if (isSidebarOpen && !isClickInsideSidebar && !isClickOnMenuIcon) {
-                    sidebar.classList.remove('open-sidebar');
-                    isSidebarOpen = false;
-                }
-            });
-        });
-    </script>
+    <div class="right">
+        <h2>Upload Image</h2>
+        <div class="input-container">
+            <input type="file" accept="image/*">
+        </div>
+        <div class="input-container">
+            <input type="text" placeholder="Enter your name">
+        </div>
+        <button>Submit</button>
+    </div>
 </body>
 </html>
