@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Excel Table and Image Upload</title>
+    <title>크-라이엠 영수증 처리</title>
     <style>
         body {
             display: flex;
@@ -11,20 +11,22 @@
             margin: 0;
             font-family: Arial, sans-serif;
         }
-        .left {
-            flex: 7;
-            padding: 20px;
-            background-color: #f4f4f4;
-            overflow-y: auto;
-        }
-        .right {
-            flex: 3;
-            padding: 20px;
-            background-color: #e8e8e8;
+        .total-region{
             display: flex;
+            width: 100%;
+            height: 100%;
+            border-radius: 0 10px 10px 0;
+        }
+        .left-side{
+            flex: 7;
+            display: flex;
+            background-color: #f4f4f4;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
+        }
+        .right-side{
+            flex: 3;
+            background-color: #e8e8e8;
+            border-radius: 0 10px 10px 0;
         }
         table {
             width: 100%;
@@ -41,45 +43,160 @@
         .input-container {
             margin: 10px 0;
         }
+        ul {
+            list-style-type: none; /* 리스트 마커 제거 */
+            padding: 0; /* 내부 여백 제거 */
+            margin: 0; /* 외부 여백 제거 */
+        }
+
+        /* 리스트 아이템 스타일링 */
+        li {
+            padding: 8px 0; /* 위아래로 8px의 여백 설정 */
+            border-bottom: 1px solid #ccc; /* 아이템 간 구분선 설정 */
+            font-size: 14px; /* 폰트 크기 설정 */
+        }
     </style>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" href="http://www.midasit.com/favicon.ico?v=2">
 </head>
 <body>
-    <div class="left">
-        <h2>Excel Data Table</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Header 1</th>
-                    <th>Header 2</th>
-                    <th>Header 3</th>
-                    <!-- Add more headers as needed -->
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Data 1</td>
-                    <td>Data 2</td>
-                    <td>Data 3</td>
-                    <!-- Add more data rows as needed -->
-                </tr>
-                <tr>
-                    <td>Data 4</td>
-                    <td>Data 5</td>
-                    <td>Data 6</td>
-                    <!-- Add more data rows as needed -->
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="right">
-        <h2>Upload Image</h2>
-        <div class="input-container">
-            <input type="file" accept="image/*">
+    <div class ="total-region">
+        <div class="left-side">
+            <h2>마이다스아이티 사내동아리 클라이엠 (CL2M) 영수증 제출 페이지입니다. 예, 귀찮아서 만들었어요.</h2>
+            <h4>made by 강성주</h4>
+            <table id = "dataTable">
+                <thead>
+                    <tr>
+                        <th>이름</th>
+                        <th>일자</th>
+                        <th>금액</th>
+                        <th>일일이용권</th>
+                        <th>암벽화대여</th>
+                        <th>장비구매</th>
+                        <!-- Add more headers as needed -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data rows will be inserted here -->
+                </tbody>
+            </table>
         </div>
-        <div class="input-container">
-            <input type="text" placeholder="Enter your name">
+        <div class = "right-side">
+            <h2>영수증 사진 업로드</h2>
+            <h4>결제한 카드사 어플에서 결제 내역을 캡쳐하여 올려주세요</h4>
+            <div class="input-container">
+                <input type="file" id = "fileInput" accept="image/*" >
+            </div>
+            <div class="input-container">
+                <input type="text" id = "nameInput" placeholder="이름 입력">
+            </div>
+            <div>
+                <label for="option0">
+                  <input type="checkbox" id="day_" name="option" value="Option 1">
+                  일일이용권
+                </label><br>
+                <label for="option1">
+                  <input type="checkbox" id="shoe" name="option" value="Option 1">
+                  암벽화 대여
+                </label><br>
+
+                <label for="option2">
+                  <input type="checkbox" id="equi" name="option" value="Option 2">
+                  기타 장비구매
+                </label><br>
+            </div>
+            <div>
+                <button onclick="uploadImage()">제출</button>
+            </div>
+            <h2>영수증 확인</h2>
+            <img id="imagePreview" src="#" alt="Preview Image" style="display: none; max-width: 100%; max-height: 400px;">
         </div>
-        <button>Submit</button>
     </div>
+    <script>
+
+        const ws = new WebSocket('ws://10.10.30.241:3030');
+        ws.onopen = function(event) {
+            console.log('Connected to WebSocket server');
+        };
+        ws.onmessage = function(msg) {
+
+            const message = JSON.parse(msg.data);``
+            console.log(message.data)
+            if(message.type == "update_table"){
+                console.log(message.data);
+                add_table(message.data);
+            }
+            else if(message.type == "enter"){
+                console.log(message.data);
+                show_table(message.data);
+            }
+        };
+        document.getElementById('fileInput').addEventListener('change', function() {
+          const file = this.files[0];
+          if (file) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+              const imagePreview = document.getElementById('imagePreview');
+              imagePreview.src = e.target.result;
+              imagePreview.style.display = 'block';
+            };
+
+            reader.readAsDataURL(file);
+          }
+        });
+        function add_table(data){
+
+            const jsonObj = JSON.parse(data);
+            const tableBody = document.querySelector('#dataTable tbody');
+            let row = `<tr><td>${jsonObj.이름}</td><td>${jsonObj.결제일자}</td><td>${jsonObj.금액}</td><td>${jsonObj.일일이용권}</td><td>${jsonObj.암벽화대여}</td><td>${jsonObj.장비구매}</td></tr>`;
+            tableBody.innerHTML += row;
+        }
+        function show_table(data){
+            const jsonObj = JSON.parse(data);
+            const tableBody = document.querySelector('#dataTable tbody');
+
+            jsonObj.forEach(item => {
+                let row = `<tr><td>${item.이름}</td><td>${item.결제일자}</td><td>${item.금액}</td><td>${item.일일이용권}</td><td>${item.암벽화대여}</td><td>${item.장비구매}</td></tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+        function uploadImage() {
+            const fileInput = document.getElementById('fileInput');
+            const nameInput = document.getElementById('nameInput');
+
+            const day_ = document.getElementById('day_')
+            const shoe = document.getElementById('shoe');
+            const equip = document.getElementById('equi');
+
+
+            if (fileInput.files.length === 0 || nameInput.value === '') {
+                alert('Please select a file and enter a filename');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = () => {
+                const arrayBuffer = reader.result;
+                const base64String = btoa(
+                    new Uint8Array(arrayBuffer)
+                        .reduce((data, byte) => data + String.fromCharCode(byte), '')
+                );
+
+                const data = {
+                    type: 'image',
+                    filename: file.name,
+                    username: nameInput.value,
+                    imageData: base64String,
+                    day_use: day_.checked,
+                    shoe_rent : shoe.checked,
+                    buy_equi : equip.checked
+                };
+                ws.send(JSON.stringify(data));
+            };
+            reader.readAsArrayBuffer(file);
+        }
+    </script>
 </body>
 </html>
