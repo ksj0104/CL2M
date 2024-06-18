@@ -3,6 +3,9 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const WebSocket = require('ws');
+const { spawn } = require('child_process');
+const ExcelJS = require('exceljs');
+const Hangul = require('hangul-js');
 
 // 사용자 세션을 저장할 객체
 const sessions = {};
@@ -12,6 +15,8 @@ let clients = [];
 const https_host = "10.10.30.241"
 const ws_host = "10.10.30.241"
 const wss = new WebSocket.Server({ host: ws_host, port: 3030 });
+const UPLOAD_DIR = "imgs"
+const EXCEL_FILE = "table.xlsx"
 
 // HTTP 서버 생성
 const server = http.createServer((req, res) => {
@@ -45,6 +50,7 @@ const server = http.createServer((req, res) => {
                 res.writeHead(200, {'Content-Type': 'text/html'});
                 console.log(`Session ID: ${sessionID}\nUser ID: ${sessions[sessionID].userID}`);
                 res.end(data);
+
             }
         });
     }
@@ -96,20 +102,10 @@ function dup_id_check(w_id){
     return true;
 }
 
-function boardcastMSG(type, context){
+function broadcastMSG(type, context){
     clients.forEach(client => {
         client.ws.send(JSON.stringify({ type: type, data: context }));
     });
-}
-
-function boardcastMSG_g(type, context){
-    players.forEach(player=> {
-        client.ws.send(JSON.stringify({ type: type, data: context }));
-    });
-}
-
-function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 
@@ -123,42 +119,150 @@ wss.on('connection', function connection(ws) {
             break;
         }
     }
-
-
-    // 클라이언트가 메시지를 보낼 때
+    readExcelFile(EXCEL_FILE, ws);
     ws.on('message', function incoming(message) {
-        const sp = "qmwnburqiowe"
-        let msg = message.toString('utf-8').split(sp)
-        if (msg[0] =='send_chat'){
-            // to do something
+        const data = JSON.parse(message);
+        if (data.type === 'image') {
+
+            const buffer = Buffer.from(data.imageData, 'base64');
+            const username = data.username;
+            const expe = data.filename.split('.')[1]
+            const file_name = convertHangulToEnglish(username) +'_'+generateSecureRandomString(8) + '.' + expe;
+            const file_path = path.join(UPLOAD_DIR, file_name);
+
+            fs.writeFile(file_path, buffer, err => {
+                if (err) {
+                    ws.send(JSON.stringify({ type: 'error', message: 'File save error' }));
+                }
+                else {
+                    ws.send(JSON.stringify({ type: 'success', message: 'File uploaded successfully' }));
+                    ocr(file_path, username, data.day_use, data.shoe_rent, data.buy_equi);
+                }
+          });
         }
     });
 
     // 클라이언트가 연결을 종료할 때
     ws.on('close', function close() {
-        boardcastMSG('info', userID + " 님이 퇴장 하셨습니다.")
+        broadcastMSG('info', userID + " 님이 퇴장 하셨습니다.")
         console.log('Client disconnected');
         clients = clients.filter(client => client.ws !== ws);
     });
 });
 
-function getRandomInt(min, max) {
-    min = Math.ceil(min); // 최소값 올림
-    max = Math.floor(max); // 최대값 내림
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+
+function ocr(image_path, user_name, day_, shoe, buy){
+    console.log(image_path, user_name);
+    const pythonProcess = spawn('python', ['ocr.py', image_path, user_name, day_, shoe, buy]);
+    pythonProcess.stdout.on('data', (data) => {
+        console.log(data)
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+        console.error(`stderr: ${data}`);
+    });
+
+    pythonProcess.on('close', (code) => {
+        console.log(`child process exited with code ${code}`);
+        readLastData(EXCEL_FILE)
+    });
 }
 
-// 접속자 리스트를 모든 클라이언트에게 전송하는 함수
-function broadcastUserList(type, ulist) {
-    const userList = ulist.map(client => client.userID);
-    const message = JSON.stringify({ type: type, data: userList});
-    ulist.forEach(client => {
-        client.ws.send(message);
-    });
+async function readLastData(filename) {
+    const workbook = new ExcelJS.Workbook();
+    try {
+    // 엑셀 파일 로드
+        await workbook.xlsx.readFile(filename);
+
+    // 첫 번째 시트 선택 (index는 1부터 시작)
+        const worksheet = workbook.getWorksheet(1);
+        // 첫 번째 행과 마지막 행 가져오기
+        const headers = worksheet.getRow(1).values.slice(1); // 첫 번째 행의 값들 (첫 번째 열은 빈 값이므로 제외)
+        const lastRowValues = worksheet.getRow(worksheet.rowCount).values.slice(1); // 마지막 행의 값들 (첫 번째 열은 빈 값이므로 제외)
+
+        // 첫 번째 행을 키로, 마지막 행을 값으로 변환
+        const result = {};
+            headers.forEach((header, index) => {
+            result[header] = lastRowValues[index];
+        });
+        broadcastMSG("update_table", JSON.stringify(result));
+
+    } catch (error) {
+        console.error('엑셀 파일 읽기 실패:', error);
+    }
 }
-function broadcastButton(){
-    //button_state
-    clients.forEach(client => {
-        client.ws.send(JSON.stringify({ type: 'button', data: button_state}));
-    });
+
+async function readExcelFile(filename, ws) {
+    const workbook = new ExcelJS.Workbook();
+    try {
+    // 엑셀 파일 로드
+        await workbook.xlsx.readFile(filename);
+
+    // 첫 번째 시트 선택 (index는 1부터 시작)
+        const worksheet = workbook.getWorksheet(1);
+
+        let data = [];
+
+        let headers = [];
+        // 시트에서 각 행을 순회하며 데이터 추출
+        worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+            if (rowNumber === 1) {
+            // 첫 번째 행은 헤더로 사용
+                row.eachCell((cell) => {
+                    headers.push(cell.value);
+                });
+            } else {
+            // 데이터 행
+                let rowData = {};
+                    row.eachCell((cell, colNumber) => {
+                    rowData[headers[colNumber - 1]] = cell.value;
+                });
+                data.push(rowData);
+            }
+        });
+        let _json = JSON.stringify(data, null, 2);
+        ws.send(JSON.stringify({ type: 'enter', data: _json }));
+    } catch (error) {
+        console.error('엑셀 파일 읽기 실패:', error);
+    }
+}
+
+
+function generateSecureRandomString(length) {
+  return crypto.randomBytes(length).toString('hex').slice(0, length);
+}
+
+
+
+function convertHangulToEnglish(koreanString) {
+  // 한글을 자음과 모음으로 분리
+  const disassembled = Hangul.disassemble(koreanString);
+
+  // 분리된 자음과 모음을 로마자로 변환
+  const romanized = Hangul.assemble(disassembled.map(char => {
+    switch (char) {
+      case 'ㄱ': return 'k';
+      case 'ㄲ': return 'kk';
+      case 'ㄴ': return 'n';
+      case 'ㄷ': return 'd';
+      case 'ㄸ': return 'tt';
+      case 'ㄹ': return 'r';
+      case 'ㅁ': return 'm';
+      case 'ㅂ': return 'b';
+      case 'ㅃ': return 'pp';
+      case 'ㅅ': return 's';
+      case 'ㅆ': return 'ss';
+      case 'ㅇ': return '';
+      case 'ㅈ': return 'j';
+      case 'ㅉ': return 'jj';
+      case 'ㅊ': return 'ch';
+      case 'ㅋ': return 'k';
+      case 'ㅌ': return 't';
+      case 'ㅍ': return 'p';
+      case 'ㅎ': return 'h';
+      default: return '';
+    }
+  }));
+
+  return romanized;
 }
