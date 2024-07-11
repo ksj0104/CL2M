@@ -34,11 +34,20 @@ def ocr(image_path, name, day_, shoe, buy):
 
     for line in text:
         _str = line.rstrip().replace(" ","")
-        print(_str)
         for dt in date_tag:
             if dt in _str:
                 dict[1] = _str.split(dt)[-1]
-
+                if len(dict[1].split('.')[0]) == 4:
+                    # xxxx.xx.xx format
+                    YY = dict[1][:4]
+                    MM = dict[1][5:7]
+                    DD = dict[1][8:10]
+                else:
+                    # xx.xx.xx format
+                    YY = "20" + dict[1][:2]
+                    MM = dict[1][3:5]
+                    DD = dict[1][6:8]
+                dict[1] = YY+"년 "+ MM +"월 " + DD + "일"
         for pt in price_tag:
             if pt in _str:
                 dict[2] = _str.split(pt)[-1].replace(",","").replace(".","")
@@ -49,7 +58,7 @@ def ocr(image_path, name, day_, shoe, buy):
                 if price % 10 != 0:
                     price = int(price * 1.1)
                 dict[2] = price
-    print(dict)
+    # print(dict)
     if dict[2] == "" or dict[1] == "":
         return
     write_data_to_excel(dict, "./table.xlsx")
