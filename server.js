@@ -6,6 +6,7 @@ const WebSocket = require('ws');
 const { spawn } = require('child_process');
 const ExcelJS = require('exceljs');
 const Hangul = require('hangul-js');
+const archiver = require('archiver');
 
 // 사용자 세션을 저장할 객체
 const sessions = {};
@@ -54,22 +55,72 @@ const server = http.createServer((req, res) => {
             }
         });
     }
-    // else if (req.url === '/admin') {
-    //     let filePath = path.join(__dirname, 'cl2m_admin.html');
-    //     // 파일을 비동기적으로 읽습니다.
-    //     fs.readFile(filePath, (err, data) => {
-    //         if (err) {
-    //             res.writeHead(404, {'Content-Type': 'text/plain'});
-    //             res.end('404 Not Found');
-    //         } else {
-    //             // 정상적으로 파일을 읽은 경우 HTML 내용을 반환합니다.
-    //             res.writeHead(200, {'Content-Type': 'text/html'});
-    //             console.log(`Session ID: ${sessionID}\nUser ID: ${sessions[sessionID].userID}`);
-    //             res.end(data);
-    //
-    //         }
-    //     });
-    // }
+    else if (req.url === '/admin/excel_download') {
+        fs.access(EXCEL_FILE, fs.constants.F_OK, (err) => {
+            if (err) {
+                res.writeHead(404, { 'Content-Type': 'text/plain' });
+                res.end('File not found');
+                return;
+            }
+            res.writeHead(200, {
+                'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition': 'attachment; filename=' + EXCEL_FILE
+            });
+            fs.createReadStream(EXCEL_FILE).pipe(res);
+        });
+    }
+    else if (req.url === '/admin/imgs_download') {
+        const imagesDir = path.join(__dirname, 'imgs');
+        const zipFilePath = path.join(__dirname, 'images.zip');
+        const output = fs.createWriteStream(zipFilePath);
+        const archive = archiver('zip', {
+            zlib: { level: 9 } // compression level
+        });
+
+        output.on('close', () => {
+            res.writeHead(200, {
+                'Content-Type': 'application/zip',
+                'Content-Disposition': 'attachment; filename=images.zip',
+                'Content-Length': archive.pointer()
+            });
+            fs.createReadStream(zipFilePath).pipe(res);
+        });
+
+        archive.on('error', (err) => {
+            res.writeHead(500, { 'Content-Type': 'text/plain' });
+            res.end('Error creating zip file');
+        });
+
+        archive.pipe(output);
+        archive.directory(imagesDir, false);
+        archive.finalize();
+    }
+    else if (req.url === '/admin') {
+        let filePath = path.join(__dirname, 'cl2m_admin.html');
+        // 파일을 비동기적으로 읽습니다.
+        fs.readFile(filePath, (err, data) => {
+            if (err) {
+                res.writeHead(404, {'Content-Type': 'text/plain'});
+                res.end('404 Not Found');
+            } else {
+                // 정상적으로 파일을 읽은 경우 HTML 내용을 반환합니다.
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                console.log(`Session ID: ${sessionID}\nUser ID: ${sessions[sessionID].userID}`);
+                res.end(data);
+            }
+        });
+    }
+    else if (req.url === '/admin.js') {
+      fs.readFile('admin.js', (err, data) => {
+        if (err) {
+          res.writeHead(404, { 'Content-Type': 'text/plain' });
+          res.end('Not Found');
+          return;
+        }
+        res.writeHead(200, { 'Content-Type': 'application/javascript' });
+        res.end(data);
+      });
+    }
     else if (req.url === '/script.js') {
       fs.readFile('script.js', (err, data) => {
         if (err) {
