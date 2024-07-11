@@ -7,11 +7,9 @@ ws.onmessage = function(msg) {
     const message = JSON.parse(msg.data);``
     console.log(message.data)
     if(message.type == "update_table"){
-        console.log(message.data);
         add_table(message.data);
     }
     else if(message.type == "enter"){
-        console.log(message.data);
         show_table(message.data);
     }
 };
@@ -31,8 +29,8 @@ document.getElementById('fileInput').addEventListener('change', function() {
 function add_table(data){
 
     const jsonObj = JSON.parse(data);
+
     const tableBody = document.querySelector('#dataTable tbody');
-    // let row = `<tr><td>${jsonObj.이름}</td><td>${jsonObj.결제일자}</td><td>${jsonObj.금액}</td><td>${jsonObj.일일이용권}</td><td>${jsonObj.암벽화대여}</td><td>${jsonObj.장비구매}</td></tr>`;
     let row = `<tr><td>${jsonObj.이름}</td><td>${jsonObj.결제일자}</td><td>${jsonObj.금액}</td></tr>`;
     tableBody.innerHTML += row;
 }
@@ -41,8 +39,7 @@ function show_table(data){
     const tableBody = document.querySelector('#dataTable tbody');
 
     jsonObj.forEach(item => {
-        let row = `<tr><td>${jsonObj.이름}</td><td>${jsonObj.결제일자}</td><td>${jsonObj.금액}</td></tr>`;
-        // let row = `<tr><td>${item.이름}</td><td>${item.결제일자}</td><td>${item.금액}</td><td>${item.일일이용권}</td><td>${item.암벽화대여}</td><td>${item.장비구매}</td></tr>`;
+        let row = `<tr><td>${item.이름}</td><td>${item.결제일자}</td><td>${item.금액}</td></tr>`;
         tableBody.innerHTML += row;
     });
 }
@@ -82,6 +79,8 @@ function uploadImage() {
     };
     reader.readAsArrayBuffer(file);
 
+    const selected_file = document.getElementById('fileInput');
+    selected_file.value  = ""
 
     const imagePreview = document.getElementById('imagePreview');
     imagePreview.style="display: none;"
