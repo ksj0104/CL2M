@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 뷰포트 설정 추가 -->
+    <title>크-라이엠 영수증 처리</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column; /* 모바일에서는 세로 방향으로 표시 */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .total-region{
+            display: flex;
+            flex-direction: column; /* 모바일에서는 세로 방향으로 표시 */
+        }
+        .left-side{
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .right-side{
+            background-color: #e8e8e8;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .input-container {
+            margin: 10px 0;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            padding: 8px 0;
+            border-bottom: 1px solid #ccc;
+            font-size: 14px;
+        }
+        /* 추가된 모바일 스타일 */
+        #imagePreview {
+            max-width: 100%;
+            height: auto; /* 모바일에서 이미지 높이 조정 */
+            margin-top: 10px;
+        }
+        input[type="text"], input[type="file"], button {
+            width: 100%; /* 입력 요소를 모바일 화면 크기에 맞게 설정 */
+            padding: 10px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+    </style>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" href="http://www.midasit.com/favicon.ico?v=2">
+</head>
+<body>
+    <div class="total-region">
+        <h3>클라이엠 (CL2M) 영수증 제출</h3>
+        <div class="right-side">
+            <h4>영수증 사진 업로드</h4>
+            <h5>결제한 카드사 어플에서 결제 내역을 캡쳐하여 올려주세요</h5>
+            <div class="input-container">
+                <input type="file" id="fileInput" accept="image/*">
+            </div>
+            <div class="input-container">
+                <input type="text" id="nameInput" placeholder="이름 입력">
+            </div>
+            <div>
+                <label for="day_">
+                    <input type="checkbox" id="day_" name="option" value="Option 1", checked = "true">
+                    일일이용권
+                </label><br>
+                <label for="shoe">
+                    <input type="checkbox" id="shoe" name="option" value="Option 1">
+                    암벽화 대여
+                </label><br>
+                <label for="equi">
+                    <input type="checkbox" id="equi" name="option" value="Option 2">
+                    정기권, 횟수권, 기타 장비구매
+                </label><br>
+            </div>
+            <div>
+                <button onclick="uploadImage()">제출</button>
+            </div>
+            <h4>영수증 확인</h4>
+            <img id="imagePreview" src="#" alt="Preview Image" style="display: none;">
+        </div>
+        <div class="left-side">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>이름</th>
+                        <th>금액</th>
+                        <th>일자</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+<script src = "script.js"></script>
+</body>
+</html>
