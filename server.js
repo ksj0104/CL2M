@@ -54,6 +54,22 @@ const server = http.createServer((req, res) => {
             }
         });
     }
+    // else if (req.url === '/admin') {
+    //     let filePath = path.join(__dirname, 'cl2m_admin.html');
+    //     // 파일을 비동기적으로 읽습니다.
+    //     fs.readFile(filePath, (err, data) => {
+    //         if (err) {
+    //             res.writeHead(404, {'Content-Type': 'text/plain'});
+    //             res.end('404 Not Found');
+    //         } else {
+    //             // 정상적으로 파일을 읽은 경우 HTML 내용을 반환합니다.
+    //             res.writeHead(200, {'Content-Type': 'text/html'});
+    //             console.log(`Session ID: ${sessionID}\nUser ID: ${sessions[sessionID].userID}`);
+    //             res.end(data);
+    //
+    //         }
+    //     });
+    // }
     else if (req.url === '/script.js') {
       fs.readFile('script.js', (err, data) => {
         if (err) {
@@ -93,7 +109,7 @@ function create_file(filepath) {
             {header: '금액', key: '금액', width: 30},
             {header: '일일이용권', key: '일일이용권', width: 30},
             {header: '암벽화대여', key: '암벽화대여', width: 30},
-            {header: '장비구매', key: '장비구매', width: 30},
+            {header: '장비구매', key: '장비구매', width: 30}
         ];
 
         // 엑셀 파일 쓰기
