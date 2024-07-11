@@ -25,7 +25,6 @@ document.getElementById('fileInput').addEventListener('change', function() {
       imagePreview.src = e.target.result;
       imagePreview.style.display = 'block';
     };
-
     reader.readAsDataURL(file);
   }
 });
@@ -42,7 +41,7 @@ function show_table(data){
     const tableBody = document.querySelector('#dataTable tbody');
 
     jsonObj.forEach(item => {
-        let row = `<tr><td>${item.이름}</td><td>${item.금액}</td><td>${item.결제일자}</td></tr>`;
+        let row = `<tr><td>${jsonObj.이름}</td><td>${jsonObj.결제일자}</td><td>${jsonObj.금액}</td></tr>`;
         // let row = `<tr><td>${item.이름}</td><td>${item.결제일자}</td><td>${item.금액}</td><td>${item.일일이용권}</td><td>${item.암벽화대여}</td><td>${item.장비구매}</td></tr>`;
         tableBody.innerHTML += row;
     });
@@ -82,4 +81,8 @@ function uploadImage() {
         ws.send(JSON.stringify(data));
     };
     reader.readAsArrayBuffer(file);
+
+
+    const imagePreview = document.getElementById('imagePreview');
+    imagePreview.style="display: none;"
 }
