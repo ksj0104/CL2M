@@ -25,7 +25,7 @@ def write_data_to_excel(dict_data, excel_path = "./table.xlsx"):
 
 def ocr(image_path, name, day_, shoe, buy):
     img = cv2.imread(image_path)
-    custom_config = r'--oem 2 -l kor --psm 6'  # Tesseract OCR 설정 (선택적)
+    custom_config = r'--oem 3 -l kor --psm 6'  # Tesseract OCR 설정 (선택적)
     text = pytesseract.image_to_string(img, config=custom_config).split('\n')
     date_tag = ["거래일시","결제일","거래일자","결제일시","이용일시"]
     price_tag = ["승인금액","결제금액","매입금액","이용금액","받은금액"]
@@ -42,10 +42,13 @@ def ocr(image_path, name, day_, shoe, buy):
         for pt in price_tag:
             if pt in _str:
                 dict[2] = _str.split(pt)[-1].replace(",","").replace(".","")
-                price = int(dict[2][:-1])
+                price = 0
+                for ch in dict[2]:
+                    if ch >= '0' and ch <= '9':
+                        price = price * 10 + int(ch)
                 if price % 10 != 0:
                     price = int(price * 1.1)
-                    dict[2] = price
+                dict[2] = price
     print(dict)
     if dict[2] == "" or dict[1] == "":
         return
