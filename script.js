@@ -3,9 +3,7 @@ ws.onopen = function(event) {
     console.log('Connected to WebSocket server');
 };
 ws.onmessage = function(msg) {
-
-    const message = JSON.parse(msg.data);``
-    console.log(message.data)
+    const message = JSON.parse(msg.data);
     if(message.type == "update_table"){
         add_table(message.data);
     }
@@ -78,10 +76,7 @@ function uploadImage() {
         ws.send(JSON.stringify(data));
     };
     reader.readAsArrayBuffer(file);
-
-    const selected_file = document.getElementById('fileInput');
-    selected_file.value  = ""
-
+    fileInput.value  = ""
     const imagePreview = document.getElementById('imagePreview');
     imagePreview.style="display: none;"
 }
