@@ -16,7 +16,7 @@ const https_host = "10.10.30.241"
 const ws_host = "10.10.30.241"
 const wss = new WebSocket.Server({ host: ws_host, port: 3030 });
 const UPLOAD_DIR = "imgs"
-const EXCEL_FILE = "table.xlsx"
+const EXCEL_FILE = path.join(__dirname, "table.xlsx");
 
 // HTTP 서버 생성
 const server = http.createServer((req, res) => {
@@ -39,7 +39,7 @@ const server = http.createServer((req, res) => {
     }
 
     if (req.url === '/') {
-        let filePath = path.join(__dirname, 'index.html');
+        let filePath = path.join(__dirname, 'index_m.html');
         // 파일을 비동기적으로 읽습니다.
         fs.readFile(filePath, (err, data) => {
             if (err) {
@@ -54,6 +54,17 @@ const server = http.createServer((req, res) => {
             }
         });
     }
+    else if (req.url === '/script.js') {
+      fs.readFile('script.js', (err, data) => {
+        if (err) {
+          res.writeHead(404, { 'Content-Type': 'text/plain' });
+          res.end('Not Found');
+          return;
+        }
+        res.writeHead(200, { 'Content-Type': 'application/javascript' });
+        res.end(data);
+      });
+    }
     else {
         // 다른 경로로의 요청에 대해서는 404 에러를 반환합니다.
         res.writeHead(404, {'Content-Type': 'text/plain'});
@@ -66,7 +77,37 @@ const port = 3000;
 server.listen(port, https_host, () => {
     console.log(`Server running at http://${https_host}:${port}/`);
 });
+create_file(EXCEL_FILE)
 
+function create_file(filepath) {
+
+    // 파일 존재 여부 확인
+    if (!fs.existsSync(filepath)) {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Sheet1');
+
+        // 테이블 헤더 추가
+        worksheet.columns = [
+            {header: '이름', key: '이름', width: 30},
+            {header: '결제일자', key: '결제일자', width: 30},
+            {header: '금액', key: '금액', width: 30},
+            {header: '일일이용권', key: '일일이용권', width: 30},
+            {header: '암벽화대여', key: '암벽화대여', width: 30},
+            {header: '장비구매', key: '장비구매', width: 30},
+        ];
+
+        // 엑셀 파일 쓰기
+        workbook.xlsx.writeFile(filepath)
+            .then(() => {
+                console.log('엑셀 파일이 생성되었습니다.');
+            })
+            .catch((err) => {
+                console.error('파일 생성 중 오류가 발생했습니다:', err);
+            });
+    } else {
+        console.log('엑셀 파일이 이미 존재합니다.');
+    }
+}
 // 쿠키를 파싱하는 함수
 function parseCookies(req) {
     const cookieHeader = req.headers.cookie;
@@ -202,7 +243,6 @@ async function readExcelFile(filename, ws) {
         const worksheet = workbook.getWorksheet(1);
 
         let data = [];
-
         let headers = [];
         // 시트에서 각 행을 순회하며 데이터 추출
         worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
