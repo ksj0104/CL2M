@@ -15,9 +15,13 @@ const sessions = {};
 
 // 클라이언트 접속자 리스트
 let clients = [];
-const https_host = "43.203.214.204"
-const ws_host = "43.203.214.204"
-const wss = new WebSocket.Server({ host: ws_host, port: 3030 });
+const http_host = "0.0.0.0"
+const http_port = 3000
+
+const ws_host = "0.0.0.0"
+const ws_port = 3030
+
+const wss = new WebSocket.Server({ host: ws_host, port: ws_port });
 const UPLOAD_DIR = "imgs"
 
 function get_excel_path(){
@@ -155,9 +159,8 @@ const server = http.createServer(async (req, res) => {
 });
 
 // 서버를 시작합니다.
-const port = 3000;
-server.listen(port, https_host, () => {
-    console.log(`Server running at http://${https_host}:${port}/`);
+server.listen(http_port, http_host, () => {
+    console.log(`Server running at http://${http_host}:${http_port}/`);
 });
 
 function create_file(filepath) {
