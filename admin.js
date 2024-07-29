@@ -1,4 +1,4 @@
-const ws = new WebSocket('ws://43.203.214.204:3030');
+const ws = new WebSocket('ws://3.36.59.185:3030');
 ws.onopen = function(event) {
     console.log('Connected to WebSocket server');
 };
