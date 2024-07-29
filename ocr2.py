@@ -26,7 +26,8 @@ def write_data_to_excel(dict_data, excel_path):
 def ocr(image_path, name, day_, buy):
     img = cv2.imread(image_path)
     height, width = img.shape[:2]
-    img = cv2.resize(img, (width * 2, height * 2), interpolation=cv2.INTER_LINEAR)
+    prop = 2
+    img = cv2.resize(img, (width * prop, height * prop), interpolation=cv2.INTER_LINEAR)
     custom_config = r'--oem 3 -l kor --psm 6'  # Tesseract OCR 설정 (선택적)
     text = pytesseract.image_to_string(img, config=custom_config).split('\n')
     date_tag = ["거래일시","결제일","거래일자","결제일시","이용일시"]
