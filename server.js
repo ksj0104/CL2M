@@ -277,7 +277,7 @@ wss.on('connection', function connection(ws) {
 
 function ocr(image_path, user_name, day_, buy){
     // console.log(image_path, user_name);
-    const pythonProcess = spawn('python', ['ocr.py', image_path, user_name, day_, buy]);
+    const pythonProcess = spawn('python', ['ocr2.py', image_path, user_name, day_, buy]);
     pythonProcess.stdout.on('data', (data) => {
         console.log(data)
     });
