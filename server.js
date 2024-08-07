@@ -15,13 +15,9 @@ const sessions = {};
 
 // 클라이언트 접속자 리스트
 let clients = [];
-const http_host = "0.0.0.0"
-const http_port = 3000
-
-const ws_host = "0.0.0.0"
-const ws_port = 3030
-
-const wss = new WebSocket.Server({ host: ws_host, port: ws_port });
+const https_host = "10.10.30.241"
+const ws_host = "10.10.30.241"
+const wss = new WebSocket.Server({ host: ws_host, port: 3030 });
 const UPLOAD_DIR = "imgs"
 
 function get_excel_path(){
@@ -115,6 +111,7 @@ const server = http.createServer(async (req, res) => {
 
     }
     else if (pathname === '/admin') {
+
         let filePath = path.join(__dirname, 'cl2m_admin.html');
         // 파일을 비동기적으로 읽습니다.
         fs.readFile(filePath, (err, data) => {
@@ -151,6 +148,17 @@ const server = http.createServer(async (req, res) => {
         res.end(data);
       });
     }
+    else if (pathname === '/styles.css') {
+        fs.readFile('styles.css', (err, data) => {
+            if (err) {
+            res.writeHead(404, { 'Content-Type': 'text/plain' });
+            res.end('Not Found');
+            return;
+            }
+            res.writeHead(200, { 'Content-Type': 'text/css' });
+            res.end(data);
+        });
+    }
     else {
         // 다른 경로로의 요청에 대해서는 404 에러를 반환합니다.
         res.writeHead(404, {'Content-Type': 'text/plain'});
@@ -159,8 +167,9 @@ const server = http.createServer(async (req, res) => {
 });
 
 // 서버를 시작합니다.
-server.listen(http_port, http_host, () => {
-    console.log(`Server running at http://${http_host}:${http_port}/`);
+const port = 3000;
+server.listen(port, https_host, () => {
+    console.log(`Server running at http://${https_host}:${port}/`);
 });
 
 function create_file(filepath) {
@@ -277,7 +286,7 @@ wss.on('connection', function connection(ws) {
 
 function ocr(image_path, user_name, day_, buy){
     // console.log(image_path, user_name);
-    const pythonProcess = spawn('python', ['ocr2.py', image_path, user_name, day_, buy]);
+    const pythonProcess = spawn('python', ['ocr.py', image_path, user_name, day_, buy]);
     pythonProcess.stdout.on('data', (data) => {
         console.log(data)
     });
