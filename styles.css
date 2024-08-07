@@ -1,0 +1,165 @@
+body {
+    display: flex;
+    flex-direction: column; /* 모바일에서는 세로 방향으로 표시 */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+.total-region{
+    display: flex;
+    flex-direction: column; /* 모바일에서는 세로 방향으로 표시 */
+}
+.left-side{
+    background-color: #f4f4f4;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+.right-side{
+    background-color: #e8e8e8;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    justify-content: center;
+    align-items: center;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+th, td {
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+th {
+    background-color: #f2f2f2;
+}
+.input-container {
+    margin: 10px 0;
+}
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+li {
+    padding: 8px 0;
+    border-bottom: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.upload-section {
+    margin-bottom: 20px;
+}
+
+.custom-file-upload {
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+}
+
+.custom-file-upload:hover {
+    background-color: #0056b3;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.preview-section {
+    position: relative;
+    width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.slider {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+}
+
+.slides {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+}
+
+.slides .slide {
+    min-width: 100%;
+    box-sizing: border-box;
+}
+
+.slides img {
+    width: 100%;
+    height: auto;
+    flex-shrink: 0;
+}
+
+.prev, .next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    width: auto;
+    margin-top: -22px;
+    padding: 16px;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    border: none;
+    background-color: rgba(0, 0, 0, 0.5);
+    user-select: none;
+    border-radius: 50%;
+}
+
+.prev {
+    left: 10px;
+}
+
+.next {
+    right: 10px;
+}
+
+.submit-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.submit-btn:hover {
+    background-color: #218838;
+}
+
+/* 인디케이터 스타일 추가 */
+.indicators {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.indicators span {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin: 0 5px;
+    background-color: #ccc;
+    border-radius: 50%;
+}
+
+.indicators .active {
+    background-color: #007bff;
+}
