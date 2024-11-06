@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 뷰포트 설정 추가 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>크-라이엠 영수증 처리</title>
     <link rel="stylesheet" href="./styles.css">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -73,10 +73,17 @@
                         <th>이름</th>
                         <th>결제일자</th>
                         <th>금액</th>
+                        <th>삭제</th>
                     </tr>
                 </thead>
                 <tbody>
                     <!-- Data rows will be inserted here -->
+                    <tr>
+                        <td>이름</td>
+                        <td>일자</td>
+                        <td>금액</td>
+                        <td><button onclick="deleteRecord(this)">삭제</button></td>
+                    </tr>
                 </tbody>
             </table>
         </div>

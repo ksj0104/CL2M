@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const ws = new WebSocket('ws://10.10.30.241:3030');
+    const ws = new WebSocket('ws://localhost:3030');
     ws.onopen = function(event) {
         console.log('Connected to WebSocket server');
         show_calendar();
@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
             add_table(message.data);
         } else if (message.type === "enter") {
             show_table(message.data);
+        } else if (message.type === "delete_success") {
+            location.reload(); // 삭제 성공 시 페이지 새로고침
         }
     };
 
@@ -87,11 +89,28 @@ document.addEventListener('DOMContentLoaded', () => {
     function show_table(data) {
         const jsonObj = JSON.parse(data);
         const tableBody = document.querySelector('#dataTable tbody');
-        tableBody.innerHTML = "";
-        jsonObj.forEach(item => {
-            let row = `<tr><td>${item.이름}</td><td>${item.결제일자}</td><td>${item.금액}</td></tr>`;
+        tableBody.innerHTML = ""; // 기존 테이블 내용 초기화
+        jsonObj.forEach((item, index) => {
+            let row = `<tr>
+                <td>${item.이름}</td>
+                <td>${item.결제일자}</td>
+                <td>${item.금액}</td>
+                <td><button onclick="deleteRecord(${index})">삭제</button></td>
+            </tr>`;
             tableBody.innerHTML += row;
         });
+    }
+
+    function deleteRecord(index) {
+        const year = document.querySelector('#year').value;
+        const month = document.querySelector('#month').value;
+        const data = { 
+            type: 'delete', 
+            index: index,
+            year: year,
+            month: month
+        };
+        ws.send(JSON.stringify(data));
     }
 
     function uploadImage(event) {
@@ -186,4 +205,5 @@ document.addEventListener('DOMContentLoaded', () => {
     window.changeSlide = changeSlide;
     window.show_list = get_data;
     window.toggleCheckbox = toggleCheckbox;
+    window.deleteRecord = deleteRecord;
 });
