@@ -15,9 +15,12 @@ const sessions = {};
 
 // 클라이언트 접속자 리스트
 let clients = [];
-const https_host = "10.10.30.241"
-const ws_host = "10.10.30.241"
-const wss = new WebSocket.Server({ host: ws_host, port: 3030 });
+const http_host = "192.168.219.102"
+const http_port = 8080
+
+const ws_host = http_host
+const ws_port = 8090
+const wss = new WebSocket.Server({ host: ws_host, port: ws_port });
 const UPLOAD_DIR = "imgs"
 
 function get_excel_path(){
@@ -167,9 +170,8 @@ const server = http.createServer(async (req, res) => {
 });
 
 // 서버를 시작합니다.
-const port = 3000;
-server.listen(port, https_host, () => {
-    console.log(`Server running at http://${https_host}:${port}/`);
+server.listen(http_port, http_host, () => {
+    console.log(`Server running at http://${http_host}:${http_port}/`);
 });
 
 function create_file(filepath) {
@@ -298,7 +300,7 @@ wss.on('connection', function connection(ws) {
 
 function ocr(image_path, user_name, day_, buy){
     // console.log(image_path, user_name);
-    const pythonProcess = spawn('python', ['ocr.py', image_path, user_name, day_, buy]);
+    const pythonProcess = spawn('python', ['ocr2.py', image_path, user_name, day_, buy]);
     pythonProcess.stdout.on('data', (data) => {
         console.log(data)
     });
