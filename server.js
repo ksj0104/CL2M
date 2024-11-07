@@ -15,8 +15,8 @@ const sessions = {};
 
 // 클라이언트 접속자 리스트
 let clients = [];
-const https_host = "localhost"
-const ws_host = "localhost"
+const https_host = "10.10.30.241"
+const ws_host = "10.10.30.241"
 const wss = new WebSocket.Server({ host: ws_host, port: 3030 });
 const UPLOAD_DIR = "imgs"
 

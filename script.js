@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const ws = new WebSocket('ws://localhost:3030');
+    const ws = new WebSocket('ws://10.10.30.241:3030');
     ws.onopen = function(event) {
         console.log('Connected to WebSocket server');
         show_calendar();
