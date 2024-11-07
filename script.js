@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const ws = new WebSocket('ws://10.10.30.241:3030');
+    const ws = new WebSocket('ws://117.110.12.94:8090');
     ws.onopen = function(event) {
         console.log('Connected to WebSocket server');
         show_calendar();
@@ -104,8 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function deleteRecord(index) {
         const year = document.querySelector('#year').value;
         const month = document.querySelector('#month').value;
-        const data = { 
-            type: 'delete', 
+        const data = {
+            type: 'delete',
             index: index,
             year: year,
             month: month
