@@ -252,7 +252,7 @@ wss.on('connection', function connection(ws) {
     }
     // default 는 현재 년월로 구성된 파일을 읽어온다.
     readExcelFile(get_excel_path(), ws);
-    ws.on('message', function incoming(message) {
+    ws.on('message', async function incoming(message) {
         const data = JSON.parse(message);
         if (data.type === 'image') {
             const buffer = Buffer.from(data.imageData, 'base64');
@@ -272,6 +272,18 @@ wss.on('connection', function connection(ws) {
         }
         else if(data.type === 'YYYYMM'){ // 캘린더에 해당하는 파일 불러오기
             readExcelFile(`data_${data.year}${data.month}.xlsx`, ws);
+        }
+        else if (data.type === 'delete') {
+            const filename = `data_${data.year}${data.month}.xlsx`;
+            const workbook = new ExcelJS.Workbook();
+            await workbook.xlsx.readFile(filename);
+            const worksheet = workbook.getWorksheet(1);
+
+            // 데이터 삭제
+            worksheet.spliceRows(data.index + 2, 1);
+
+            await workbook.xlsx.writeFile(filename);
+            ws.send(JSON.stringify({ type: 'delete_success' }));
         }
     });
 
